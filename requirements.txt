@@ -1,0 +1,19 @@
+fastapi
+uvicorn[standard]
+python-multipart
+
+# Validation
+pydantic
+pydantic-settings
+
+# Database
+sqlalchemy
+alembic
+asyncpg
+
+# Authentication
+python-jose[cryptography]
+
+# communication (caspian)
+caspian-sdk
+caspian-cli

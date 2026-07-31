@@ -1,0 +1,22 @@
+services:
+  postgresql:
+      image: postgres:17-alpine
+      container_name: postgres-pwa
+      ports:
+        - "5432:5432"
+      volumes:
+        - postgres_data:/var/lib/postgresql/data
+      env_file:
+        - .env
+  
+  backend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+
+volumes:
+  postgres_data:
