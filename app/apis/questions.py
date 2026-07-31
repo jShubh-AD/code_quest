@@ -1,10 +1,14 @@
+from io import BytesIO
+
 from fastapi import APIRouter, HTTPException, Depends
+from fastapi.responses import StreamingResponse
 from app.schemas.questions_schema import QuestionCreate, QuestionAdminResponse, QuestionUpdate
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from app.models.questions_model import QuestionOption, QuestionHint, Question
 from app.core.db import get_db
+import qrcode
 
 q_router =  APIRouter(prefix="/admin/questions", tags=["Admin Questtions"])
 
@@ -63,7 +67,6 @@ async def create_question(question: QuestionCreate, db: AsyncSession = Depends(g
     await db.refresh(db_question)
 
     return db_question
-
 
 @q_router.patch("/{id}")
 async def update_question(id: int, payload: QuestionUpdate,db: AsyncSession = Depends(get_db)):
@@ -124,3 +127,45 @@ async def delete_question(
     await db.delete(question)
     await db.commit()
     return {"success": True, "message": "Question with deleted successfully."}
+
+
+@q_router.post(
+        "/qr/{id}",
+        responses={
+        200: {
+            "content": {"image/png": {}},
+            "description": "Question QR Code",
+            }
+        })
+async def generate_qr(id: int, db: AsyncSession = Depends(get_db)):
+    question = await db.get(Question, id)
+    if not question:
+        raise HTTPException(400, "Question not found.")
+
+    url = f"fe_url/q/{question.qr_id}"
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_H,
+        box_size=10,
+        border=4,
+    )
+
+    qr.add_data(url)
+    qr.make(fit=True)
+
+    img = qr.make_image(
+        fill_color="black",
+        back_color="white",
+    )
+
+    buffer = BytesIO()
+    img.save(buffer, format="PNG")
+    buffer.seek(0)
+
+    return StreamingResponse(
+        buffer,
+        media_type="image/png",
+        headers={
+            "Content-Disposition": f'inline; filename="question_{id}.png"'
+        },
+    )

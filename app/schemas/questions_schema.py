@@ -42,6 +42,15 @@ class QuestionOptionAdmin(QuestionOptionPublic):
 
 # ==================== Question ====================
 
+class QuestionBase(BaseModel):
+    title: str
+    description: str
+    question_type: Literal["mcq", "qna", "coding", "puzzle"]
+    points: int
+    time_limit_seconds: int | None = None
+    image_url: str | None = None
+    is_active: bool = True
+
 class QuestionCreate(BaseModel):
     title: str
     description: str
@@ -79,11 +88,9 @@ class QuestionAdminResponse(QuestionCreate):
 
     model_config = ConfigDict(from_attributes=True)
 
-class QuestionPublicResponse(QuestionCreate):
+class QuestionPublicResponse(QuestionBase):
     id: int
     qr_id: UUID
-
-    hints: list[QuestionHintResponse]
     options: list[QuestionOptionPublic]
 
     model_config = ConfigDict(from_attributes=True)

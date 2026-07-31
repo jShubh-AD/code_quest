@@ -17,3 +17,6 @@ python-jose[cryptography]
 # communication (caspian)
 caspian-sdk
 caspian-cli
+
+#  qr code
+qrcode[pil]
