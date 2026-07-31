@@ -6,7 +6,7 @@ from app.apis.questions import q_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    init_db()
+    await init_db()
     yield
 
 

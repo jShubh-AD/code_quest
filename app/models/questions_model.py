@@ -132,7 +132,7 @@ class QuestionOption(Base):
         nullable=False,
     )
 
-    lable: Mapped[str] = mapped_column(
+    label: Mapped[str] = mapped_column(
         String(2),
         nullable=False,
     )
