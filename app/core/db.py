@@ -14,5 +14,7 @@ async def get_db():
 
 async def init_db():
     from app.models.questions_model import Question, QuestionHint, QuestionOption
+    from app.models.teams import Teams
+    from app.models.members import Member
     async with engine.begin() as con:
         await con.run_sync(Base.metadata.create_all)

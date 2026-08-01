@@ -1,16 +1,28 @@
 from io import BytesIO
 
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, UploadFile, File
 from fastapi.responses import StreamingResponse
 from app.schemas.questions_schema import QuestionCreate, QuestionAdminResponse, QuestionUpdate
+from app.core.settings import settings
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from app.models.questions_model import QuestionOption, QuestionHint, Question
 from app.core.db import get_db
 import qrcode
+from pathlib import Path
+import shutil
 
 q_router =  APIRouter(prefix="/admin/questions", tags=["Admin Questtions"])
+
+MAX_IMAGE_SIZE = 5 * 1024 * 1024  # 5 MB
+
+ALLOWED_IMAGE_TYPES = {
+    "image/jpeg": ".jpg",
+    "image/png": ".png",
+    "image/webp": ".webp",
+}
+
 
 @q_router.get("/")
 async def get_questions(db: AsyncSession = Depends(get_db)):
@@ -128,21 +140,13 @@ async def delete_question(
     await db.commit()
     return {"success": True, "message": "Question with deleted successfully."}
 
-
-@q_router.post(
-        "/qr/{id}",
-        responses={
-        200: {
-            "content": {"image/png": {}},
-            "description": "Question QR Code",
-            }
-        })
+@q_router.post("/qr/{id}",status_code= 201)
 async def generate_qr(id: int, db: AsyncSession = Depends(get_db)):
     question = await db.get(Question, id)
     if not question:
-        raise HTTPException(400, "Question not found.")
+        raise HTTPException(404, "Question not found.")
 
-    url = f"fe_url/q/{question.qr_id}"
+    url = f"{settings.FE_BASE_URL}/q/{question.qr_id}"
     qr = qrcode.QRCode(
         version=1,
         error_correction=qrcode.constants.ERROR_CORRECT_H,
@@ -158,14 +162,57 @@ async def generate_qr(id: int, db: AsyncSession = Depends(get_db)):
         back_color="white",
     )
 
-    buffer = BytesIO()
-    img.save(buffer, format="PNG")
-    buffer.seek(0)
+    folder = Path("/app/data/qr/questions")
+    folder.mkdir(parents=True, exist_ok=True)
 
-    return StreamingResponse(
-        buffer,
-        media_type="image/png",
-        headers={
-            "Content-Disposition": f'inline; filename="question_{id}.png"'
-        },
-    )
+    path = folder / f"{id}.png"
+    img.save(path, format="PNG")
+
+    question.qr_code_url = f"/static/qr/questions/{id}.png"
+
+    await db.commit()
+    await db.refresh(question)
+    return {
+        "message": f"Generated QR Code for question {id}.",
+        "qr_url": question.qr_code_url,
+    }
+
+@q_router.post("{id}/image", status_code=201)
+async def upload_question_image(
+    id: int,
+    image: UploadFile = File(...),
+    db: AsyncSession = Depends(get_db)
+):
+    question = await db.get(Question, id)
+
+    if question is None:
+        raise HTTPException(404, "Question not found")
+
+    if image.content_type not in ALLOWED_IMAGE_TYPES:
+        raise HTTPException(415,"Only JPG, PNG and WebP images are allowed")
+
+    image.file.seek(0, 2)
+    size = image.file.tell()
+    image.file.seek(0)
+
+    if size > MAX_IMAGE_SIZE:
+        raise HTTPException(413, "Image must be 5 MB or smaller")
+
+    extension = ALLOWED_IMAGE_TYPES[image.content_type]
+
+    folder = Path(f"/app/data/questions")
+    folder.mkdir(parents=True, exist_ok=True)
+
+    path = folder / f"{id}{extension}"
+    # Save without loading entire image into RAM
+    with path.open("wb") as file:
+        shutil.copyfileobj(image.file, file)
+
+    question.image_url = f"/static/questions/{id}{extension}"
+    await db.commit()
+    await db.refresh(question)
+
+    return {
+            "message": f"Image saved for question {id}.",
+            "qr_url": question.image_url,
+        }

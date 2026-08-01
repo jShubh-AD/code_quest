@@ -82,7 +82,7 @@ class QuestionUpdate(BaseModel):
 class QuestionAdminResponse(QuestionCreate):
     id: int
     qr_id: UUID
-
+    qr_code_url: str | None = None
     hints: list[QuestionHintResponse]
     options: list[QuestionOptionAdmin]
 
@@ -92,5 +92,6 @@ class QuestionPublicResponse(QuestionBase):
     id: int
     qr_id: UUID
     options: list[QuestionOptionPublic]
+    qr_code_url: str | None = None
 
     model_config = ConfigDict(from_attributes=True)

@@ -1,8 +1,9 @@
 from uuid import UUID, uuid4
 
 from sqlalchemy import Boolean, SmallInteger, String, Text, ForeignKey
-from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
+from sqlalchemy.dialects.postgresql import  UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 
 from app.core.db import Base
 
@@ -20,6 +21,11 @@ class Question(Base):
         unique=True,
         nullable=False,
         default=uuid4,
+    )
+
+    qr_code_url: Mapped[str] = mapped_column(
+        Text,
+        nullable=True
     )
 
     title: Mapped[str] = mapped_column(
