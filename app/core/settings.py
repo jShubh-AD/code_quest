@@ -10,6 +10,14 @@ class Setting(BaseSettings):
     FE_BASE_URL: str
     BE_BASE_UR: str
 
+    SHEET_ID: str
+
+    # SMTP
+    SMTP_HOST: str
+    SMTP_PORT: int
+    SMTP_EMAIL: str
+    SMTP_PASSWORD: str
+
     class Config:
         env_file= ".env"
         env_file_encoding= "utf-8"

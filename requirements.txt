@@ -20,3 +20,7 @@ caspian-cli
 
 #  qr code
 qrcode[pil]
+
+# google sheets
+ google-api-python-client 
+ google-auth

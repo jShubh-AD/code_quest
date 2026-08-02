@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
-from sqlalchemy import  String, DateTime, func, SmallInteger
+from sqlalchemy import  String, DateTime, func, SmallInteger, Text
 from app.core.db import Base
 from uuid import uuid4, UUID
 from datetime import datetime
@@ -8,20 +8,12 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from app.models.members import Member
 
-class Teams(Base):
+class Team(Base):
     __tablename__ = "teams"
 
-    id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
-        primary_key=True,
-        default=uuid4,
-    )
-
-    team_tag: Mapped[str] = mapped_column(
-        String(100),
-        nullable=False,
-        unique=True,
-        index=True
+    id: Mapped[int] = mapped_column(
+        SmallInteger,
+        primary_key=True
     )
 
     team_name: Mapped[str] = mapped_column(
@@ -61,6 +53,11 @@ class Teams(Base):
         unique=True,
         index=True,
         default=uuid4,
+    )
+
+    qr_url: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
     )
 
     status: Mapped[str] = mapped_column(

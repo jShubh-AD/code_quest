@@ -6,7 +6,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.core.db import Base
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from app.models.teams import Teams
+    from app.models.teams import Team
 
 
 class Member(Base):
@@ -18,8 +18,8 @@ class Member(Base):
         default=uuid4,
     )
 
-    team_id: Mapped[UUID] = mapped_column(
-        PG_UUID(as_uuid=True),
+    team_id: Mapped[int] = mapped_column(
+        SmallInteger,
         ForeignKey("teams.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
@@ -56,6 +56,6 @@ class Member(Base):
         nullable=False,
     )
 
-    team: Mapped["Teams"] = relationship(
+    team: Mapped["Team"] = relationship(
         back_populates="members",
     )
