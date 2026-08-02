@@ -12,6 +12,7 @@ from app.core.db import get_db
 import qrcode
 from pathlib import Path
 import shutil
+from app.core.helpers import delete_local_file
 
 q_router =  APIRouter(prefix="/admin/questions", tags=["Admin Questtions"])
 
@@ -136,9 +137,13 @@ async def delete_question(
     if question is None:
         raise HTTPException(status_code=404, detail="Question not found")
 
+    # Delete local files
+    delete_local_file(question.qr_code_url)
+    delete_local_file(question.image_url)
+
     await db.delete(question)
     await db.commit()
-    return {"success": True, "message": "Question with deleted successfully."}
+    return {"success": True, "message": "Question was deleted successfully."}
 
 @q_router.post("/qr/{id}",status_code= 201)
 async def generate_qr(id: int, db: AsyncSession = Depends(get_db)):
