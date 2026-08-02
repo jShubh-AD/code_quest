@@ -13,8 +13,17 @@ from uuid import UUID
 
 t_router = APIRouter(prefix="/admin/teams", tags=["Admin Teams"])
 
+@t_router.get("/")
+async def get_teams(db: AsyncSession = Depends(get_db)):
+    teams = (await db.scalars(select(Team))).all()
+    if not teams:
+        raise HTTPException(404, "Team not found.")
+    
+    return teams
+
+
 @t_router.get("/{id}")
-async def get_teams(id: int, db: AsyncSession = Depends(get_db)):
+async def get_team_by_id(id: int, db: AsyncSession = Depends(get_db)):
     team = await db.get(Team, id)
     if not team:
         raise HTTPException(404, "Team not found.")
@@ -42,7 +51,7 @@ async def update_team_by_id(id: int,payload: TeamUpdate,db: AsyncSession = Depen
 
     for field, value in update_data.items():
         setattr(team, field, value)
-        
+
     await db.commit()
     await db.refresh(team)
     return team
