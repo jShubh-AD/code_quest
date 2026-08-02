@@ -32,6 +32,24 @@ async def get_teams_by_qr(qr_id: UUID, db: AsyncSession = Depends(get_db)):
     
     return team
 
+@t_router.patch("/{id}")
+async def update_team_by_id(id: int,payload: TeamUpdate,db: AsyncSession = Depends(get_db)):
+    team = await db.get(Team, id)
+    if not team:
+        raise HTTPException(404, "Team not found.")
+
+    update_data = payload.model_dump(exclude_unset=True)
+
+    for field, value in update_data.items():
+        setattr(team, field, value)
+        
+    await db.commit()
+    await db.refresh(team)
+    return team
+
+
+    
+
 @t_router.post("/import")
 async def import_teams(db:AsyncSession = Depends(get_db)):
     registrations =  get_teams_registrations()
@@ -59,8 +77,6 @@ async def generate_qr(db:AsyncSession = Depends(get_db)):
         HTTPException(404, "No registered teams.")
 
     for team in teams:
-        url = f"{settings.FE_BASE_URL}/s/{team.qr_id}"
-
         qr = qrcode.QRCode(
             version=1,
             error_correction=qrcode.constants.ERROR_CORRECT_H,
@@ -68,7 +84,7 @@ async def generate_qr(db:AsyncSession = Depends(get_db)):
             border=4,
         )
 
-        qr.add_data(url)
+        qr.add_data(team.qr_id)
         qr.make(fit=True)
         
         img = qr.make_image(

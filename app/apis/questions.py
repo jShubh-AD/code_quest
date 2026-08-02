@@ -177,7 +177,7 @@ async def generate_qr(id: int, db: AsyncSession = Depends(get_db)):
         "qr_url": question.qr_code_url,
     }
 
-@q_router.post("{id}/image", status_code=201)
+@q_router.post("/{id}/image", status_code=201)
 async def upload_question_image(
     id: int,
     image: UploadFile = File(...),
