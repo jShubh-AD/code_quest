@@ -124,7 +124,7 @@ async def send_email_by_id(id: int, db: AsyncSession = Depends(get_db)):
     try:
         send_registration_email(team=team)
     except FileNotFoundError as e:
-        raise HTTPException(400, e)
+        raise HTTPException(409, str(e))
     except Exception as e:
         print(e)
         raise HTTPException(500, str(e))
