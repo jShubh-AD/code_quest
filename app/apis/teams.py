@@ -121,8 +121,13 @@ async def send_email_by_id(id: int, db: AsyncSession = Depends(get_db)):
     team = await db.get(Team, id)
     if not team:
         raise HTTPException(404, "No teams found.")
-
-    send_registration_email(team=team)
+    try:
+        send_registration_email(team=team)
+    except FileNotFoundError as e:
+        raise HTTPException(400, e)
+    except Exception as e:
+        print(e)
+        raise HTTPException(500, str(e))
     return {
         "message": f"Registration email sent to {team.leader_email}"
     }
