@@ -7,6 +7,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from app.models.members import Member
+    from app.models.submissison import Submission
 
 class Team(Base):
     __tablename__ = "teams"
@@ -82,4 +83,9 @@ class Team(Base):
     members: Mapped[list["Member"]] = relationship(
         back_populates="team",
         cascade="all, delete-orphan"
+    )
+
+    submissions: Mapped[list["Submission"]] = relationship(
+        back_populates="team",
+        cascade= "all, delete-orphan"
     )

@@ -119,9 +119,12 @@ def send_registration_email(team: Team):
         settings.SMTP_HOST,
         settings.SMTP_PORT,
     ) as smtp:
+        print("Connected")
         smtp.login(
             settings.SMTP_EMAIL,
             settings.SMTP_PASSWORD,
         )
-
-        smtp.send_message(msg)
+        print("logged in")
+        result = smtp.send_message(msg)
+        print("SMTP result:", result)
+    print("Email accepted by SMTP server")

@@ -4,8 +4,10 @@ from fastapi.staticfiles import StaticFiles
 from app.core.db import init_db
 from contextlib import asynccontextmanager
 from app.apis.questions import q_router
-from app.apis.public_questions import public_router
+from app.apis.public_questions import p_router
 from app.apis.teams import t_router
+from app.apis.submissison import v_router
+from app.apis.leaderboard import l_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -34,8 +36,10 @@ app.mount(
 )
 
 app.include_router(q_router)
-app.include_router(public_router)
+app.include_router(p_router)
 app.include_router(t_router)
+app.include_router(v_router)
+app.include_router(l_router)
 
 @app.get("/")
 def root():

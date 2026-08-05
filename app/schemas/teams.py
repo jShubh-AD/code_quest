@@ -21,7 +21,8 @@ class TeamBase(BaseModel):
 # ==================== Create ====================
 
 class TeamCreate(TeamBase):
-    status: Literal["pending","registered","rejected", "winner", "disqualified"] = Field(default="registered")
+    status: Literal["registered", "ongoing", "disqualified", "completed", "winner"] = Field(default="registered")
+
     pass
 
 
@@ -35,10 +36,8 @@ class TeamUpdate(BaseModel):
     leader_email: str | None = None
     semester: int | None = None
     course: str | None = None
-    status: Literal["pending","registered","rejected", "winner", "disqualified"] = Field(default="registered")
-
+    status: Literal["registered", "ongoing", "disqualified", "completed", "winner"] = Field(default="registered")
     model_config = ConfigDict(from_attributes=True)
-
 
 # ==================== Response ====================
 
@@ -47,6 +46,19 @@ class TeamResponse(TeamBase):
     qr_id: UUID
     status: str
     qr_url: str | None = None
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class VolunteerTeamResponse(TeamBase):
+    id: int
+    qr_id: UUID
+    status: str
+    qr_url: str | None = None
+    total_points: int = 0
+    attempted_questions: int = 0
     created_at: datetime
     updated_at: datetime
 

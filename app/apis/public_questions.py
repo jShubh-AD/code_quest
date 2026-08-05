@@ -8,15 +8,16 @@ from app.schemas.questions_schema import QuestionPublicResponse
 from uuid import UUID
 
 
-public_router = APIRouter(prefix="/public/questions", tags=["Public Questions"])
+p_router = APIRouter(prefix="/public/questions", tags=["Public Questions"])
 
-@public_router.get("/qr/{qr_id}")
+@p_router.get("/qr/{qr_id}")
 async def get_question_by_qr(qr_id: UUID, db: AsyncSession = Depends(get_db)):
     stmt = (
         select(Question)
         .where(Question.qr_id == qr_id)
         .options(
             selectinload(Question.options),
+            selectinload(Question.hints),
         )
     )
     question = await db.scalar(stmt)
@@ -26,7 +27,7 @@ async def get_question_by_qr(qr_id: UUID, db: AsyncSession = Depends(get_db)):
 
     return QuestionPublicResponse.model_validate(question)
 
-@public_router.get("/{id}")
+@p_router.get("/{id}")
 async def get_question_by_qr(id: int, db: AsyncSession = Depends(get_db)):
     stmt = (
         select(Question)

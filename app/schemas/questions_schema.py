@@ -92,6 +92,7 @@ class QuestionPublicResponse(QuestionBase):
     id: int
     qr_id: UUID
     options: list[QuestionOptionPublic]
+    hints: list[QuestionHintResponse]
     qr_code_url: str | None = None
 
     model_config = ConfigDict(from_attributes=True)

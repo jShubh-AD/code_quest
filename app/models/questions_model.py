@@ -4,7 +4,10 @@ from sqlalchemy import Boolean, SmallInteger, String, Text, ForeignKey
 from sqlalchemy.dialects.postgresql import  UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.core.db import Base
+from typing import TYPE_CHECKING
 
+if TYPE_CHECKING:
+    from app.models.submissison import Submission
 
 class Question(Base):
     __tablename__ = "questions"
@@ -80,10 +83,10 @@ class Question(Base):
         order_by="QuestionOption.label",
     )
 
-    # submissions: Mapped[list["Submission"]] = relationship(
-    #     back_populates="question",
-    #     cascade="all, delete-orphan",
-    # )
+    submissions: Mapped[list["Submission"]] = relationship(
+        back_populates="question",
+        cascade="all, delete-orphan",
+    )
 
 # ==================== Hints ====================  
 
