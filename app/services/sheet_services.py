@@ -2,6 +2,7 @@ from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 from pathlib import Path
 from app.schemas.teams import TeamImport
+from app.core.settings import settings
 
 SCOPES = [
     "https://www.googleapis.com/auth/spreadsheets.readonly"
@@ -29,9 +30,8 @@ def get_sheets_service():
 def get_teams_registrations() -> list[TeamImport]:
     service =  get_sheets_service()
 
-    # sheet_id= "1qtBtKswEyU5rpgyEcGQSycUBzjlf2cQdwHqM-_eOLJs"
-    sheet_id = "1DJxhNVkrHq1jV9gmyqHAV5PmAgWIfatR4czyHgxGQgE"
-
+    sheet_id = settings.SHEET_ID
+    
     sheet = service.spreadsheets().get(
         spreadsheetId= sheet_id
     ).execute()
