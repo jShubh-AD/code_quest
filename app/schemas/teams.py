@@ -93,7 +93,7 @@ class TeamImport(BaseModel):
 
         return datetime.strptime(
             value,
-            "%m/%d/%Y %H:%M:%S",
+            "%d/%m/%Y %H:%M:%S",
         )
 
     model_config = ConfigDict(from_attributes=True)

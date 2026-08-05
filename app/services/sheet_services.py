@@ -31,7 +31,7 @@ def get_teams_registrations() -> list[TeamImport]:
     service =  get_sheets_service()
 
     sheet_id = settings.SHEET_ID
-    
+
     sheet = service.spreadsheets().get(
         spreadsheetId= sheet_id
     ).execute()
@@ -44,7 +44,7 @@ def get_teams_registrations() -> list[TeamImport]:
         .values()
         .get(
             spreadsheetId=sheet_id,
-            range="Sheet1!A:H",
+            range="Form responses 1!A:H",
         ).execute())
 
     rows = result.get("values", [])
